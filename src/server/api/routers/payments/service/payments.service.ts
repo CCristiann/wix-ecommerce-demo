@@ -6,7 +6,6 @@ import { TGetCheckoutUrlFromProduct } from "./payments.service.types";
 import { findVariant } from "~/lib/findVariant";
 import { WIX_STORES_APP_ID } from "~/lib/costants";
 import { WixClient } from "~/lib/wix-client.base";
-
 class PaymentsService {
   public async getCheckoutUrlFromCurrentCart(wixClient: WixClient) {
     const { checkoutId } =
@@ -33,11 +32,12 @@ class PaymentsService {
     return { checkoutUrl: redirectSession.fullUrl };
   }
 
-  public async getCheckoutUrlFromProduct(wixClient: WixClient, args: TGetCheckoutUrlFromProduct) {
+  public async getCheckoutUrlFromProduct(args: TGetCheckoutUrlFromProduct) {
     const { product, selectedOptions, quantity } = args;
 
     const selectedVariant = findVariant(product, selectedOptions);
 
+    const wixClient = await getWixServerClient()
     const { _id } = await wixClient.checkout.createCheckout({
       channelType: checkout.ChannelType.WEB,
       lineItems: [
