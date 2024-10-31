@@ -1,11 +1,11 @@
-"use client";
-
 import { products } from "@wix/stores";
 import { notFound } from "next/navigation";
-import ProductDetails from "./_components/ProductDetails";
+import ProductDetails, { ProductDetailsSkeleton } from "./_components/ProductDetails";
 import RelatedProducts from "./_components/RelatedProducts";
-import { api } from "~/trpc/react";
+import { api } from "~/trpc/server";
 import Container from "~/components/common/Container";
+import ProductReviews from "./_components/ProductReviews";
+import { Suspense } from "react";
 
 interface PageProps {
   params: {
@@ -13,24 +13,22 @@ interface PageProps {
   };
 }
 
-export default function Page({ params: { slug } }: PageProps) {
-  const { data, isLoading } = api.products.getProductBySlug.useQuery({ slug });
+export default async function Page({ params: { slug } }: PageProps) {
+  const loggedInMember = await api.auth.getLoggedInMember();
+  const data = await api.products.getProductBySlug({ slug });
   const product = data as products.Product | null | undefined;
 
-  if (!product?._id && !isLoading) return notFound();
+  if (!product?._id || !product) return notFound();
 
   return (
     <section id="product-page" className="pt-20 2xl:pt-36">
       <Container>
         <div className="space-y-10">
-          {isLoading ? (
-            <ProductDetails.Skeleton />
-          ) : (
-            product && <ProductDetails product={product} />
-          )}
-          {product && product._id && (
-            <RelatedProducts productId={product._id} />
-          )}
+          <Suspense fallback={<ProductDetailsSkeleton />}>
+            <ProductDetails product={product} />
+          </Suspense>
+          <RelatedProducts productId={product._id} />
+          <ProductReviews product={product} loggedInMember={loggedInMember ? loggedInMember : null} />
         </div>
       </Container>
     </section>

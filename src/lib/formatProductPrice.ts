@@ -10,5 +10,5 @@ export function formatProductPrice(product: products.Product) {
     return `from ${formatCurrency(minPrice, currency)}`
   }
 
-  return product.priceData?.formatted?.discountedPrice || product.priceData?.formatted?.price || "N/A"
+  return product.priceData?.formatted?.discountedPrice?.replace(" ", "") || product.priceData?.formatted?.price?.replace(" ", "") || "N/A"
 }

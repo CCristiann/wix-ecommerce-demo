@@ -14,6 +14,7 @@ export default function FeaturedProducts() {
   }
 
   return (
+    <section id="featured-products" className="w-full py-10">
     <Container>
       <div className="space-y-5">
         <h2 className="text-2xl font-bold">Featured Products</h2>
@@ -34,5 +35,6 @@ export default function FeaturedProducts() {
         </div>
       </div>
     </Container>
+    </section>
   );
 }

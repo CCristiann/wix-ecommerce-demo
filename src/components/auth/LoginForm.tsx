@@ -45,6 +45,10 @@ export default function LoginForm() {
             );
           Cookies.set(WIX_SESSION_COOKIE, JSON.stringify(tokens));
           wixBrowserClient.auth.setTokens(tokens);
+          toast({
+            title: "Welcome back!",
+            description: "You successfully logged in.",
+          })
           router.push("/");
       }
     },

@@ -6,7 +6,7 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { getWixServerClient } from "~/lib/wix-client.server";
@@ -24,10 +24,13 @@ import { getWixServerClient } from "~/lib/wix-client.server";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const wixClient = await getWixServerClient()
+  const wixClient = await getWixServerClient();
+  const isAuthenticated =  wixClient.auth.loggedIn();
+
   return {
     ...opts,
-    wixClient
+    wixClient,
+    isAuthenticated,
   };
 };
 
@@ -104,3 +107,22 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+export const protectedProcedure = t.procedure.use(
+  async function isAuthenticated(opts) {
+    const { ctx, next } = opts;
+
+    if (!ctx.isAuthenticated) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message:
+          "You are not authorized to perform this action. Please log in to continue.",
+      });
+    }
+
+    return next({
+      ctx: {
+        isAuthenticated: true,
+      },
+    });
+  },
+);

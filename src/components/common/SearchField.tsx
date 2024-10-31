@@ -28,8 +28,8 @@ export default function SearchField({ className }: SearchFieldProps) {
       className={cn("grow", className)}
     >
       <div className="relative">
-        <Input name="q" className="pe-10" placeholder="Search" />
-        <LuSearch className="size-5 absolute top-1/2 -translate-y-1/2 right-3" />
+        <Input name="q" className="ps-10" placeholder="Search" />
+        <LuSearch className="size-4 text-muted-foreground absolute top-1/2 -translate-y-1/2 left-3" />
       </div>
     </form>
   );

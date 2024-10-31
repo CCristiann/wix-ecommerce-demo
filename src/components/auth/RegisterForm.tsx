@@ -32,6 +32,10 @@ export default function RegisterForm() {
 
   const { mutate: register, isPending } = api.auth.register.useMutation({
     onSuccess: (data) => {
+      toast({
+        title: "Great!",
+        description: "You successfully registered.",
+      })
       if (data?.redirectUrl) router.push(data.redirectUrl);
     },
     onError: (err) => {

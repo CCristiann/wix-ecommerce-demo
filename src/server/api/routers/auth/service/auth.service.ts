@@ -10,10 +10,7 @@ import {
 import { wixBrowserClient } from "~/lib/wix-client.browser";
 import { env } from "~/type-safe-env";
 
-import { WIX_SESSION_COOKIE } from "~/lib/costants";
-
 import { TRPCError } from "@trpc/server";
-import { cookies } from "next/headers";
 import { members } from "@wix/members";
 
 import { WixClient } from "~/lib/wix-client.base";
@@ -39,12 +36,13 @@ class AuthService {
 
   public async logout(wixClient: WixClient) {
     try {
-      const { logoutUrl } = await wixClient.auth.logout(env.NEXT_PUBLIC_BASE_URL);
-
-      cookies().delete(WIX_SESSION_COOKIE);
+      const { logoutUrl } = await wixClient.auth.logout(
+        env.NEXT_PUBLIC_BASE_URL,
+      );
 
       return { logoutUrl };
     } catch (err) {
+      console.log(err);
       console.log(err);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
@@ -57,7 +55,7 @@ class AuthService {
     const { email, password } = validateSchema(RegisterSchema, args);
 
     try {
-      const res = await wixClient.auth.register({
+      await wixClient.auth.register({
         email,
         password,
       });

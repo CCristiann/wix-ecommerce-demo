@@ -11,19 +11,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/shadcn/dropdown-menu";
-import { LuLoader2, LuUser2 } from "react-icons/lu";
+import { LuLoader2, LuLogOut, LuUser2 } from "react-icons/lu";
 import { members } from "@wix/members";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import { WIX_SESSION_COOKIE } from "~/lib/costants";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/shadcn/avatar";
+import Image from "next/image";
 
 interface UserButtonProps {
   member?: members.Member | null;
 }
 
 export default function UserButton({ member }: UserButtonProps) {
-  console.log("MEMBER", member)
-  const router = useRouter()
-
   const { mutate: logout, isPending: isLoggingOut } =
     api.auth.logout.useMutation({
       onError: (err) => {
@@ -35,8 +36,8 @@ export default function UserButton({ member }: UserButtonProps) {
       },
       onSuccess: ({ logoutUrl }) => {
         if (logoutUrl) {
-          router.push(logoutUrl)
-          router.refresh()
+          Cookies.remove(WIX_SESSION_COOKIE);
+          window.location.href = logoutUrl;
         }
       },
     });
@@ -44,24 +45,40 @@ export default function UserButton({ member }: UserButtonProps) {
   if (member) {
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex items-center justify-center bg-secondary/70 backdrop-blur-sm border border-input/50 rounded-md px-3 py-1.5 text-sm">
-          <span>
-            <LuUser2 className="size-4 mr-2" />
-          </span>
-          <span>{member.profile?.nickname || member.contact?.firstName}</span>
+        <DropdownMenuTrigger className="rounded-full">
+          <Avatar className="relative size-10 overflow-hidden rounded-full">
+            <AvatarFallback>
+              <Image
+                alt="User avatar"
+                src={"/assets/user-placeholder.png"}
+                fill
+              />
+            </AvatarFallback>
+            <AvatarImage src={member.profile?.photo?.url} />
+          </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuLabel className="flex flex-col">
-            My account
+          <DropdownMenuLabel className="text-xs">
+            {member.contact?.firstName || member.loginEmail}
           </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <Link href="/profile">
+            <DropdownMenuItem>
+              <LuUser2 className="mr-2 size-4" />
+              Profile
+            </DropdownMenuItem>
+          </Link>
 
           <DropdownMenuSeparator />
 
           <DropdownMenuItem onClick={() => logout()} disabled={isLoggingOut}>
             {isLoggingOut ? (
-              <LuLoader2 className="animate-spin size-5" />
+              <LuLoader2 className="size-5 animate-spin" />
             ) : (
-              <span>Logout</span>
+              <>
+                <LuLogOut className="mr-2 size-4" />
+                <span>Logout</span>
+              </>
             )}
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -77,7 +94,7 @@ export default function UserButton({ member }: UserButtonProps) {
       >
         Login
       </Link>
-      <Link href={"/login"} className={buttonVariants({ size: "sm" })}>
+      <Link href={"/register"} className={buttonVariants({ size: "sm" })}>
         Register
       </Link>
     </div>

@@ -17,7 +17,7 @@ export default function ProductPrice({
   const hasDiscount = priceData.discountedPrice !== priceData.price;
 
   return (
-    <div className="flex items-center gap-2.5 text-xl font-bold">
+    <div className="flex items-center gap-2.5 text-3xl font-semibold py-6">
       <span className={cn(hasDiscount && "text-muted-foreground line-through")}>
         {priceData.formatted?.price}
       </span>

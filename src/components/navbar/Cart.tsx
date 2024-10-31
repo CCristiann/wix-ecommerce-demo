@@ -15,9 +15,8 @@ import {
 } from "../ui/shadcn/sheet";
 import { currentCart } from "@wix/ecom";
 import WixImage from "../common/WixImage";
-import { LuLoader2, LuTrash2 } from "react-icons/lu";
+import { LuLoader2, LuShoppingBag, LuTrash2 } from "react-icons/lu";
 import { toast } from "~/hooks/use-toast";
-import { getQueryKey } from "@trpc/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import CheckoutButton from "../common/CheckoutButton";
 
@@ -37,18 +36,19 @@ export default function Cart() {
     <>
       <Button
         variant={"ghost"}
-        size={"icon"}
+        size={"sm"}
         onClick={() => setSheetOpen(!sheetOpen)}
         className="relative"
       >
-        <span>
-          <LucideShoppingCart className="text-muted-foreground" />
-          {!isLoading && cart && (
-            <div className="absolute -right-1.5 -top-1.5">
-              <Badge variant={"secondary"}>{totalQuantity}</Badge>
-            </div>
-          )}
+        <span className="relative flex flex-col items-center space-y-1">
+          <LuShoppingBag className="size-6 text-muted-foreground" />
+          <span className="text-xs font-medium">Cart</span>
         </span>
+        {!isLoading && cart && (
+          <div className="absolute bg-[#edcf5d] rounded-full flex items-center justify-center text-xs p-0.5 size-4 right-1 -top-1">
+            {totalQuantity}
+          </div>
+        )}
       </Button>
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent className="flex w-screen flex-col sm:max-w-lg md:w-[unset]">

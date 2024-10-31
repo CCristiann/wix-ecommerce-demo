@@ -13,18 +13,28 @@ import { Input } from "~/components/ui/shadcn/input";
 import AddToCartButton from "~/components/common/AddToCartButton";
 import BuyNowButton from "~/components/common/BuyNowButton";
 import BackInStockButton from "~/components/common/BackInStockButton";
-import { LuInfo } from "react-icons/lu";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/components/ui/shadcn/accordion";
+import { LuInfo, LuStar } from "react-icons/lu";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/shadcn/accordion";
 import { Skeleton } from "~/components/ui/shadcn/skeleton";
-
-
-
+import { api } from "~/trpc/react";
+import { cn } from "~/lib/utils";
 
 interface ProductDetailsProps {
   product: products.Product;
 }
 
 export default function ProductDetails({ product }: ProductDetailsProps) {
+  const { data: reviewsData } = api.reviews.getProductReviewsCount.useQuery({
+    productId: product._id as string,
+  });
+  const reviewsCount = reviewsData?.count || 0;
+  const reviewsAverageRating = reviewsData?.averageRating || 0;
+
   const [quantity, setQuantity] = useState<number>(1);
 
   const [selectedOptions, setSelectedOptions] = useState<
@@ -34,7 +44,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
       ?.map((option) => ({
         [option.name || ""]: option.choices?.[0]?.description || "",
       }))
-      ?.reduce((acc, curr) => ({ ...acc, ...curr }), {}) || {}
+      ?.reduce((acc, curr) => ({ ...acc, ...curr }), {}) || {},
   );
 
   const selectedVariant = findVariant(product, selectedOptions);
@@ -49,7 +59,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
   const selectedOptionsMedia = product.productOptions?.flatMap((option) => {
     const selectedChoice = option.choices?.find(
-      (choice) => choice.description === selectedOptions[option.name || ""]
+      (choice) => choice.description === selectedOptions[option.name || ""],
     );
     return selectedChoice?.media?.items ?? [];
   });
@@ -65,20 +75,32 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
       <div className="basis-3/5 space-y-5">
         <div className="space-y-2.5">
-          <h1 className="text-3xl font-bold lg;text-4xl">{product.name}</h1>
+          <h1 className="lg:text-2xl text-xl font-semibold">{product.name}</h1>
+
           {product.brand && (
             <div className="text-muted-foreground">{product.brand}</div>
           )}
           {product.ribbon && (
             <Badge className="block w-fit">{product.ribbon}</Badge>
           )}
-          {product.description && (
-            <div
-              className="text-muted-foreground prose dark:prose-invert"
-              dangerouslySetInnerHTML={{ __html: product.description || "" }}
-            />
+          
+          {reviewsData && (
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-1.5">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <LuStar
+                    key={i}
+                    className={cn(
+                      "size-4 text-yellow-500",
+                      i < reviewsAverageRating && "fill-yellow-500",
+                    )}
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-muted-foreground">{reviewsCount}{" "}{reviewsCount > 1 || reviewsCount === 0 ? "reviews" : "review"}</span>
+            </div>
           )}
-
+  
           <ProductPrice product={product} selectedVariant={selectedVariant} />
 
           <ProductOptions
@@ -100,7 +122,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               />
               {!!availableQuantity &&
                 (availableQuantityExeeded || availableQuantity < 10) && (
-                  <span className="text-destructive text-sm">
+                  <span className="text-sm text-destructive">
                     Only {availableQuantity} left in stock
                   </span>
                 )}
@@ -160,11 +182,11 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   );
 }
 
-ProductDetails.Skeleton = function ProductDetailsSkeleton() {
+export function ProductDetailsSkeleton() {
   return (
     <div className="flex flex-col gap-10 md:flex-row lg:gap-20">
       <div className="basis-2/5">
-        <Skeleton className="w-full aspect-square rounded-2xl" />
+        <Skeleton className="aspect-square w-full rounded-2xl" />
       </div>
 
       <div className="basis-3/5 space-y-5">
@@ -187,4 +209,4 @@ ProductDetails.Skeleton = function ProductDetailsSkeleton() {
       </div>
     </div>
   );
-};
+}

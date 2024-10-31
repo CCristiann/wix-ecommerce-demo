@@ -3,16 +3,17 @@
 import { products } from "@wix/stores";
 import { Button, ButtonProps } from "../ui/shadcn/button";
 import { cartService } from "~/server/api/routers/cart/service/cart.service";
-import { QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { api } from "~/trpc/react";
-import { LuLoader2 } from "react-icons/lu";
+import { LuLoader2, LuShoppingBag } from "react-icons/lu";
 import { toast } from "~/hooks/use-toast";
-import { getQueryKey } from "@trpc/react-query";
+import clsx from "clsx";
 
 interface AddToCartButtonProps extends ButtonProps {
   product: products.Product;
   selectedOptions: Record<string, string>;
   quantity: number;
+  customVariant?: "icon-only" | "icon-text"; // Le nostre varianti personalizzate
 }
 
 export default function AddToCartButton({
@@ -20,15 +21,12 @@ export default function AddToCartButton({
   selectedOptions,
   quantity,
   className,
+  customVariant = "icon-text", // Default alla variante con icona e testo
   ...props
 }: AddToCartButtonProps) {
-  const utils = api.useUtils()
+  const utils = api.useUtils();
 
-  const {
-    data,
-    isPending,
-    mutate,
-  } = useMutation({
+  const { data, isPending, mutate } = useMutation({
     mutationKey: ["add-to-cart"],
     mutationFn: async () => {
       const data = await cartService.addToCart({
@@ -50,17 +48,27 @@ export default function AddToCartButton({
 
   return (
     <Button
-      onClick={() => mutate()}
-      className={className}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        mutate();
+      }}
+      className={clsx(className, "flex items-center", {
+        "gap-2": customVariant === "icon-text", // Aggiunge spazio tra icona e testo solo per "icon-text"
+        "justify-center": customVariant === "icon-only", // Centra l'icona per la variante "icon-only"
+      })}
       {...props}
       disabled={isPending}
     >
       {isPending ? (
         <span>
-          <LuLoader2 className="animate-spin size-5" />
+          <LuLoader2 className="size-5 animate-spin" />
         </span>
       ) : (
-        "Add to cart"
+        <>
+          <LuShoppingBag className="size-5" />
+          {customVariant === "icon-text" && <span>Add to cart</span>}
+        </>
       )}
     </Button>
   );

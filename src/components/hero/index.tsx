@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section id="hero" className="relative min-h-sceen h-full w-full">
+    <section id="hero" className="relative min-h-sceen h-full w-full py-10">
       <Container>
         <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[65vh] gap-2 py-2">
           <div className="relative w-full h-full">

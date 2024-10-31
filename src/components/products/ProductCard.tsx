@@ -4,42 +4,56 @@ import WixImage from "../common/WixImage";
 import { Badge } from "../ui/shadcn/badge";
 import { formatProductPrice } from "~/lib/formatProductPrice";
 import { Skeleton } from "../ui/shadcn/skeleton";
+import AddToCartButton from "../common/AddToCartButton";
 
 interface ProductCardProps {
   product: products.Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const selectedOptions =
+    product?.productOptions
+      ?.map((option) => ({
+        [option.name || ""]: option.choices?.[0]?.description || "",
+      }))
+      ?.reduce((acc, curr) => ({ ...acc, ...curr }), {}) || {};
+
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="relative shadow-md bg-background border border-input/50 rounded-2xl h-full p-3.5 space-y-3"
+      className="z-0 relative h-full w-full rounded-2xl border border-input/50 shadow-md"
     >
-      <div className="relative overflow-hidden">
-        <WixImage
-          scaleToFill={false}
-          mediaIdentifier={product.media?.mainMedia?.thumbnail?.url}
-          alt={product.media?.mainMedia?.thumbnail?.altText}
-          className="rounded-xl object-cover aspect-[16/12]"
-        />
+      <WixImage
+        scaleToFill={false}
+        mediaIdentifier={product.media?.mainMedia?.thumbnail?.url}
+        alt={product.media?.mainMedia?.thumbnail?.altText}
+        className="h-full w-full rounded-xl object-cover"
+      />
 
-        {product.ribbon && (
-          <div className="absolute bottom-3 right-3">
-            <Badge>{product.ribbon}</Badge>
-          </div>
-        )}
+      <div className="absolute left-0 top-0 flex w-full items-center justify-between p-2.5">
+        {product.ribbon ? <Badge>{product.ribbon}</Badge> : <span></span>}
+
+        <AddToCartButton
+          selectedOptions={selectedOptions}
+          quantity={1}
+          product={product}
+          variant={"outline"}
+          size={"icon"}
+          customVariant="icon-only"
+          className="rounded-full z-10"
+        />
       </div>
 
-      <div className="space-y-1">
-        <h3 className="font-semibold">{product.name}</h3>
-
-        <div
-          className="line-clamp-2 text-sm text-muted-foreground"
-          dangerouslySetInnerHTML={{ __html: product.description || "" }}
-        />
-        <div className="font-medium">
-          <span>{formatProductPrice(product)}</span>
-        </div>
+      <div className="absolute bottom-0 left-0 flex w-full items-center justify-between gap-2.5 p-2.5">
+        <Badge
+          variant={"secondary"}
+          className="flex-grow !bg-black/30 px-3.5 py-2 backdrop-blur-lg"
+        >
+          <h1 className="font-medium text-background">{product.name}</h1>
+        </Badge>
+        <Badge className="px-3.5 py-2 font-medium">
+          {formatProductPrice(product)}
+        </Badge>
       </div>
     </Link>
   );
@@ -47,17 +61,17 @@ export default function ProductCard({ product }: ProductCardProps) {
 
 ProductCard.Skeleton = function ProductCardSkeleton() {
   return (
-    <div className="relative shadow-md bg-background border border-input/50 rounded-2xl h-full p-3.5 space-y-3">
-      <Skeleton className="w-full aspect-[16/12]" />
+    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-input/50">
+      <Skeleton className="aspect-square h-full w-full" />
 
-      <div className="space-y-1">
-        <Skeleton className="h-4 w-24" />
+      <div className="absolute left-0 top-0 flex w-full items-center justify-between p-2.5">
+        <Skeleton className="h-4 w-12 rounded-full bg-background" />
+        <Skeleton className="size-8 rounded-full bg-background" />
+      </div>
 
-        <div className="space-y-0.5">
-          <Skeleton className="h-4 w-[90%]" />
-          <Skeleton className="h-4 w-[75%]" />
-        </div>
-        <Skeleton className="h-4 w-12" />
+      <div className="absolute bottom-0 left-0 flex w-full items-center justify-between gap-2.5 p-2.5">
+        <Skeleton className="h-8 w-full flex-grow rounded-full bg-background" />
+        <Skeleton className="h-8 w-16 rounded-full bg-background" />
       </div>
     </div>
   );
