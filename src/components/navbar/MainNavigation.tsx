@@ -23,7 +23,7 @@ export default function MainNavigation({
   className,
 }: MainNavigationProps) {
   return (
-    <NavigationMenu>
+    <NavigationMenu className={cn(className)}>
       <NavigationMenuList>
         <NavigationMenuItem>
           <Link href={"/shop"} legacyBehavior passHref>

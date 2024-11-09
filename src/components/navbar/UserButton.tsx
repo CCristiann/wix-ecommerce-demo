@@ -46,7 +46,7 @@ export default function UserButton({ member }: UserButtonProps) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger className="rounded-full">
-          <Avatar className="relative size-10 overflow-hidden rounded-full">
+          <Avatar className="relative size-8 lg:size-10 overflow-hidden rounded-full">
             <AvatarFallback>
               <Image
                 alt="User avatar"

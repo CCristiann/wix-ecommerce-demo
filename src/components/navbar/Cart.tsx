@@ -42,7 +42,7 @@ export default function Cart() {
       >
         <span className="relative flex flex-col items-center space-y-1">
           <LuShoppingBag className="size-6 text-muted-foreground" />
-          <span className="text-xs font-medium">Cart</span>
+          <span className="hidden lg:block text-xs font-medium">Cart</span>
         </span>
         {!isLoading && cart && (
           <div className="absolute bg-[#edcf5d] rounded-full flex items-center justify-center text-xs p-0.5 size-4 right-1 -top-1">
